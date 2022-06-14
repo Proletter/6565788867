@@ -1,0 +1,5 @@
+- Install AWS CLI
+- Create an AWS ACCESS KEY and save your secrets in a notepad
+- run "aws configure" and input the required credentials
+- save pem file in the same folder as the script
+- run script with the name of the ec2 instance as the first parameter e.g ./script.bash <name of instance>

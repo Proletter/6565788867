@@ -112,4 +112,4 @@ def write_csv(list):
         writer.writerows(list)
 
 if __name__ == '__main__':
-    reader("access.log")
+    reader("accesss.log")
