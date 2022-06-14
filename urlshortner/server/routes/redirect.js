@@ -1,6 +1,6 @@
 const Express = require('express');
 const router = Express.Router();
-const Url = require('../models/Url');
+// const Url = require('../models/Url');
 
 router.get('/:urlId', async (req, res) => {
   try {
