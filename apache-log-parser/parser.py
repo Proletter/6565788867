@@ -28,16 +28,17 @@ def populate_global_data(ip_list):
         stripped_date = date[0:20]
         new_date = datetime.datetime.strptime(stripped_date, format)
         matched_ip = re.search(regexp, ip).group(0)
-        unique_keys.append(matched_ip)
-        if global_data.__contains__(matched_ip):
+        # unique_keys.append(matched_ip)
+        # if global_data.__contains__(matched_ip):
+        if matched_ip in global_data.keys():
             global_data[matched_ip].append(new_date)
         else:
             global_data[matched_ip] = [new_date]
-    check_ips(unique_keys, global_data)
+    check_ips(global_data)
 
 
-def check_ips(unique_keys, global_data):
-    for ip in unique_keys:
+def check_ips(global_data):
+    for ip in global_data.keys():
         data_for_ip = global_data[ip]
         check_if_40_in_1mins(ip, data_for_ip)
         check_if_20_in_10mins(ip, data_for_ip)
@@ -101,15 +102,22 @@ def check_if_20_in_10mins(ip, data_for_ip):
             break
 
 
-
-    
-def write_csv(list):
-    myheaders = ['timestamp', 'action',"ipaddress"]
-    filename = 'output.csv'
-    with open(filename, 'w', newline='') as myfile:
-        writer = csv.DictWriter(myfile, fieldnames=myheaders)
+# write list to csv with headers 
+def write_csv(list_to_write, filename = 'output.csv'):
+    with open(filename, 'w') as csvfile:
+        fieldnames = ['timestamp', 'action', 'ipaddress']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(list)
+        writer.writerows(list_to_write)
+    
+    
+# def write_csv(list):
+#     myheaders = ['timestamp', 'action',"ipaddress"]
+#     filename = 'output.csv'
+#     with open(filename, 'w', newline='') as myfile:
+#         writer = csv.DictWriter(myfile, fieldnames=myheaders)
+#         writer.writeheader()
+#         writer.writerows(list)
 
 if __name__ == '__main__':
-    reader("accesss.log")
+    reader("access.log")
