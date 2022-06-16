@@ -2,6 +2,7 @@
 
 echo 'Getting IP address from AWS...'
 
+
 PUBLIC_IP=$(aws --region us-east-2 ec2 describe-instances --filters "Name=tag:Name,Values=$1" --query 'Reservations[*].Instances[*].PublicIpAddress | []|[0]')
 if [ $PUBLIC_IP == "null" ]; 
 then
