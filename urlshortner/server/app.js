@@ -12,7 +12,7 @@ app.use('/api', require('./routes/shortner'));
 
 console.log(app.get("env"))
 
-const port = process.env.PORT || 1337
+const port = process.env.PORT || 8080
 app.listen(port,()=>{
     console.log(`listening on port ${port}`)
 })

@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-app-deployment
+  labels:
+    app: node-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: client-app
+  template:
+    metadata:
+      labels:
+        app: client-app 
+    spec:
+      containers:
+      - name: client-app
+        image: docker.io/oluseun/client:v1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+      restartPolicy: Always
