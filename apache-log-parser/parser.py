@@ -9,7 +9,6 @@ from pprint import pprint
 global_data = {
 
 }
-# 'ip address1': [ 'time_log1', 'tttime_log2'],
 global_ban = {}
 global_final_csv_data = []
 unique_keys = []
@@ -34,20 +33,15 @@ def populate_global_data(ip_list):
             global_data[matched_ip].append({'date':new_date, 'endpoint':endpoint})
         else:
             global_data[matched_ip] = [{'date':new_date, 'endpoint':endpoint}]
-    # pprint(global_data)
     check_ips(global_data)
-# central_ban_unban = {
-#     'eno': {'status': ban, 'time': 'time'}, 
-#     'esunt': {}
-# }
+
 
 def check_ips(global_data):
     for ip in global_data.keys():
         data_for_ip = global_data[ip]
         check_if_40_in_1mins(ip, data_for_ip)
         check_if_100_in_10mins(ip, data_for_ip)
-        check_if_20_in_10mins(ip, data_for_ip)
-    convert_ban_csv(global_ban)    
+        check_if_20_in_10mins(ip, data_for_ip) 
     write_csv(global_final_csv_data)
 
 def count_data(start_time, end_time, data_to_check):
@@ -119,8 +113,6 @@ def check_if_20_in_10mins(ip, data_for_ip):
         end_point = "/login"
         count_record = count_data_endpoint(data["date"], end_time, data_for_ip, end_point)
         if count_record >= 20:
-            # global_ban.append(ip:[{'action':'BAN','date':end_time.timestamp()},
-            # {'action':'UNBAN','date':(end_time+timedelta(hours=2)).timestamp()}])
             global_final_csv_data.append(
                     {"timestamp": end_time.timestamp(),
                     "action": "BAN",
@@ -137,9 +129,6 @@ def check_if_20_in_10mins(ip, data_for_ip):
             break
 
 
-def convert_ban_csv(data):
-    pprint(data)
-# write list to csv with headers 
 def write_csv(list_to_write, filename = 'output.csv'):
     with open(filename, 'w') as csvfile:
         fieldnames = ['timestamp', 'action', 'ipaddress']
@@ -148,13 +137,6 @@ def write_csv(list_to_write, filename = 'output.csv'):
         writer.writerows(list_to_write)
     
     
-# def write_csv(list):
-#     myheaders = ['timestamp', 'action',"ipaddress"]
-#     filename = 'output.csv'
-#     with open(filename, 'w', newline='') as myfile:
-#         writer = csv.DictWriter(myfile, fieldnames=myheaders)
-#         writer.writeheader()
-#         writer.writerows(list)
 
 if __name__ == '__main__':
     reader("access.log")
