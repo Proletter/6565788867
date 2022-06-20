@@ -4,12 +4,13 @@ import csv
 from collections import Counter
 import datetime
 from datetime import timedelta
+from pprint import pprint
 
 global_data = {
 
 }
-# 'ip address1': [ 'time_log1', 'time_log2'],
-
+# 'ip address1': [ 'time_log1', 'tttime_log2'],
+global_ban = {}
 global_final_csv_data = []
 unique_keys = []
 
@@ -24,42 +25,63 @@ def populate_global_data(ip_list):
     for ip in ip_list:
         regexp = r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'
         date = ip.split(" ")[3].split("[")[1]
+        endpoint = ip.split(" ")[6]
         format = '%d/%b/%Y:%X'
         stripped_date = date[0:20]
         new_date = datetime.datetime.strptime(stripped_date, format)
         matched_ip = re.search(regexp, ip).group(0)
-        # unique_keys.append(matched_ip)
-        # if global_data.__contains__(matched_ip):
         if matched_ip in global_data.keys():
-            global_data[matched_ip].append(new_date)
+            global_data[matched_ip].append({'date':new_date, 'endpoint':endpoint})
         else:
-            global_data[matched_ip] = [new_date]
+            global_data[matched_ip] = [{'date':new_date, 'endpoint':endpoint}]
+    # pprint(global_data)
     check_ips(global_data)
-
+# central_ban_unban = {
+#     'eno': {'status': ban, 'time': 'time'}, 
+#     'esunt': {}
+# }
 
 def check_ips(global_data):
     for ip in global_data.keys():
         data_for_ip = global_data[ip]
         check_if_40_in_1mins(ip, data_for_ip)
+        check_if_100_in_10mins(ip, data_for_ip)
         check_if_20_in_10mins(ip, data_for_ip)
+    convert_ban_csv(global_ban)    
     write_csv(global_final_csv_data)
 
 def count_data(start_time, end_time, data_to_check):
-    sub_items = [i for i in data_to_check if (i >= start_time and i <= end_time)]
-    return len(sub_items)
+    temp = []
+    for data in data_to_check:
+        if data["date"] >= start_time and data["date"] <= end_time:
+            temp.append(data["date"])
+    return len(temp)
+
+def count_data_endpoint(start_time, end_time, data_to_check, end_point):
+    temp = []
+    for data in data_to_check:
+        if (data["date"] >= start_time and data["date"] <= end_time) and (data["endpoint"] == end_point):
+            temp.append(data["date"])
+    return len(temp)
 
 
 
 def check_if_40_in_1mins(ip, data_for_ip):
-    for time in data_for_ip:
+    for data in data_for_ip:
         format = '%d/%b/%Y:%X'
-        end_time = time + timedelta(minutes=1)
-        count_record = count_data(time, end_time, data_for_ip)
+        end_time = data["date"] + timedelta(minutes=1)
+        count_record = count_data(data["date"], end_time, data_for_ip)
         if count_record >= 40:
-            # log it to central csv
             global_final_csv_data.append(
-                    {"timestamp": end_time,
-                    "action": "BAN for 10 minutes",
+                    {"timestamp": end_time.timestamp(),
+                    "action": "BAN",
+                    "ipaddress": ip
+                    }
+                )
+            global_final_csv_data.append(
+                    {
+                    "timestamp": (end_time+timedelta(minutes=2)).timestamp(),
+                    "action": "UNBAN",
                     "ipaddress": ip
                     }
                 )
@@ -68,40 +90,55 @@ def check_if_40_in_1mins(ip, data_for_ip):
         else:
             continue
 
-# def check_if_100_in_10mins(ip, data_for_ip):
-#     for time in data_for_ip:
-#         start_time = time 
-#         end_time = time + xMinutes
-#         count_record = count_data(start_time, end_time, data_for_ip)
-#         if count_record >= 40:
-#             # log it to central csv
-#                global_final_csv_data.append(
-#                         {"timestamp": end_time,
-#                         "action": "BAN for 1 hour",
-#                         "ipaddress": ip
-#                         }
-#                    )
-#              break
-#         else:
-#             continue
 
+def check_if_100_in_10mins(ip, data_for_ip):
+    for data in data_for_ip:
+        format = '%d/%b/%Y:%X'
+        end_time = data["date"] + timedelta(minutes=10)
+        count_record = count_data(data["date"], end_time, data_for_ip)
+        if count_record >= 100:
+            global_final_csv_data.append(
+                    {"timestamp": end_time.timestamp(),
+                    "action": "BAN",
+                    "ipaddress": ip
+                    }
+                )
+            global_final_csv_data.append(
+                    {
+                    "timestamp": (end_time+timedelta(hours=1)).timestamp(),
+                    "action": "UNBAN",
+                    "ipaddress": ip
+                    }
+                )
+            break
 
 def check_if_20_in_10mins(ip, data_for_ip):
-    for time in data_for_ip:
+    for data in data_for_ip:
         format = '%d/%b/%Y:%X'
-        end_time = time + timedelta(minutes=10)
-        count_record = count_data(time, end_time, data_for_ip)
+        end_time = data["date"] + timedelta(minutes=10)
+        end_point = "/login"
+        count_record = count_data_endpoint(data["date"], end_time, data_for_ip, end_point)
         if count_record >= 20:
-            # log it to central csv
+            # global_ban.append(ip:[{'action':'BAN','date':end_time.timestamp()},
+            # {'action':'UNBAN','date':(end_time+timedelta(hours=2)).timestamp()}])
             global_final_csv_data.append(
-                    {"timestamp": end_time,
-                    "action": "BAN for 1 hour",
+                    {"timestamp": end_time.timestamp(),
+                    "action": "BAN",
+                    "ipaddress": ip
+                    }
+                )
+            global_final_csv_data.append(
+                    {
+                    "timestamp": (end_time+timedelta(hours=2)).timestamp(),
+                    "action": "UNBAN",
                     "ipaddress": ip
                     }
                 )
             break
 
 
+def convert_ban_csv(data):
+    pprint(data)
 # write list to csv with headers 
 def write_csv(list_to_write, filename = 'output.csv'):
     with open(filename, 'w') as csvfile:
