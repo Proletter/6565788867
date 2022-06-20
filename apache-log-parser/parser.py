@@ -1,3 +1,4 @@
+import ipaddress
 import re
 
 import csv
@@ -92,19 +93,20 @@ def check_if_100_in_10mins(ip, data_for_ip):
         end_time = data["date"] + timedelta(minutes=10)
         count_record = count_data(data["date"], end_time, data_for_ip)
         if count_record >= 100:
-            global_final_csv_data.append(
-                    {"timestamp": end_time.timestamp(),
-                    "action": "BAN",
-                    "ipaddress": ip
-                    }
-                )
-            global_final_csv_data.append(
-                    {
-                    "timestamp": (end_time+timedelta(hours=1)).timestamp(),
-                    "action": "UNBAN",
-                    "ipaddress": ip
-                    }
-                )
+            if not any(csv_data["ipaddress"] == ip for csv_data in global_final_csv_data):
+                global_final_csv_data.append(
+                        {"timestamp": end_time.timestamp(),
+                        "action": "BAN",
+                        "ipaddress": ip
+                        }
+                    )
+                global_final_csv_data.append(
+                        {
+                        "timestamp": (end_time+timedelta(hours=1)).timestamp(),
+                        "action": "UNBAN",
+                        "ipaddress": ip
+                        }
+                    )
             break
 
 def check_if_20_in_10mins(ip, data_for_ip):
@@ -114,19 +116,20 @@ def check_if_20_in_10mins(ip, data_for_ip):
         end_point = "/login"
         count_record = count_data_endpoint(data["date"], end_time, data_for_ip, end_point)
         if count_record >= 20:
-            global_final_csv_data.append(
-                    {"timestamp": end_time.timestamp(),
-                    "action": "BAN",
-                    "ipaddress": ip
-                    }
-                )
-            global_final_csv_data.append(
-                    {
-                    "timestamp": (end_time+timedelta(hours=2)).timestamp(),
-                    "action": "UNBAN",
-                    "ipaddress": ip
-                    }
-                )
+            if not any(csv_data["ipaddress"] == ip for csv_data in global_final_csv_data):
+                global_final_csv_data.append(
+                        {"timestamp": end_time.timestamp(),
+                        "action": "BAN",
+                        "ipaddress": ip
+                        }
+                    )
+                global_final_csv_data.append(
+                        {
+                        "timestamp": (end_time+timedelta(hours=2)).timestamp(),
+                        "action": "UNBAN",
+                        "ipaddress": ip
+                        }
+                    )
             break
 
 
