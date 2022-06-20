@@ -1,5 +1,5 @@
 import re
-from asyncore import read, write
+
 import csv
 from collections import Counter
 import datetime
@@ -42,7 +42,8 @@ def check_ips(global_data):
         check_if_40_in_1mins(ip, data_for_ip)
         check_if_100_in_10mins(ip, data_for_ip)
         check_if_20_in_10mins(ip, data_for_ip) 
-    write_csv(global_final_csv_data)
+    sorted_list = sorted(global_final_csv_data, key = lambda i: i['timestamp'])
+    write_csv(sorted_list)
 
 def count_data(start_time, end_time, data_to_check):
     temp = []
@@ -130,6 +131,7 @@ def check_if_20_in_10mins(ip, data_for_ip):
 
 
 def write_csv(list_to_write, filename = 'output.csv'):
+    
     with open(filename, 'w') as csvfile:
         fieldnames = ['timestamp', 'action', 'ipaddress']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
