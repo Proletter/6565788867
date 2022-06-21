@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: client-app-deployment
   labels:
-    app: node-app
+    app: client-app
 spec:
   replicas: 1
   selector:
@@ -16,8 +16,9 @@ spec:
     spec:
       containers:
       - name: client-app
-        image: docker.io/oluseun/client:v1
+        image: docker.io/oluseun/client
         imagePullPolicy: Always
         ports:
         - containerPort: 80
       restartPolicy: Always
+      

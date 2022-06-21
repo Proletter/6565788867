@@ -1,3 +1,5 @@
 FROM nginx:alpine
-COPY . /usr/share/nginx/html
-EXPOSE 80
+WORKDIR /usr/share/nginx/html
+RUN rm -rf ./*
+COPY ./* ./
+ENTRYPOINT ["nginx", "-g", "daemon off;"]

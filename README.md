@@ -1,1 +1,4 @@
-# 6565788867
+- Implementation is built using nodejs/express framework on the backend and a static html site on the frontned
+- Both components are to be deployed in a kubernetes cluster
+- Mongo DB is the database of choice and that should also be deployed on the same cluster
+- This would allow for each of the component to be scaled out independently of the others.
